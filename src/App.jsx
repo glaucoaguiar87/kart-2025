@@ -33,14 +33,14 @@ const App = () => {
         poleWinner: "Glauco Aguiar",
         mvWinner: "Glauco Aguiar",
         results: {
-          "Glauco Aguiar": 30, // 25 (1º) + 3 (Pole) + 2 (MV)
-          "Marcos Vinicius": 20, // 2º
-          "Pedro Cavalcante": 18, // 3º
-          "Antonio Rocha": 15, // 4º
-          "Igor Rodrigues": 12, // 5º
-          "Erick Pacheco": 11, // 6º
-          "Cleber Santos": 10, // 7º
-          "Marcus Bessa": 8, // 8º
+          "Glauco Aguiar": 30,
+          "Marcos Vinicius": 20,
+          "Pedro Cavalcante": 18,
+          "Antonio Rocha": 15,
+          "Igor Rodrigues": 12,
+          "Erick Pacheco": 11,
+          "Cleber Santos": 10,
+          "Marcus Bessa": 8,
           "Marjara Maquiné": 0,
           "Ana Cruz": 0,
           "Mario Junior": 0,
@@ -56,19 +56,19 @@ const App = () => {
       {
         id: 2,
         name: "Etapa 2",
-        poleWinner: null, // Sem pontuação de pole
+        poleWinner: null,
         mvWinner: "Antonio Rocha",
         results: {
-          "Antonio Rocha": 27, // 25 (1º) + 2 (MV)
-          "Mario Junior": 20, // 2º
-          "Hugo Bernardes": 18, // 3º
-          "Glauco Aguiar": 15, // 4º
-          "Marcos Vinicius": 12, // 5º
-          "Enderson Alves": 11, // 6º
-          "Wendril Oliveira": 10, // 7º
-          "Igor Rodrigues": 8, // 8º
-          "Amarildo Vale": 6, // 9º
-          "Cleber Santos": 4, // 10º
+          "Antonio Rocha": 27,
+          "Mario Junior": 20,
+          "Hugo Bernardes": 18,
+          "Glauco Aguiar": 15,
+          "Marcos Vinicius": 12,
+          "Enderson Alves": 11,
+          "Wendril Oliveira": 10,
+          "Igor Rodrigues": 8,
+          "Amarildo Vale": 6,
+          "Cleber Santos": 4,
           "Pedro Cavalcante": 0,
           "Erick Bitencourt": 0,
           "Erick Pacheco": 0,
@@ -85,12 +85,12 @@ const App = () => {
         poleWinner: "Wendril Oliveira",
         mvWinner: "Wendril Oliveira",
         results: {
-          "Wendril Oliveira": 30, // 25 (1º) + 3 (Pole) + 2 (MV)
-          "Marcos Vinicius": 20, // 2º
-          "Pedro Cavalcante": 18, // 3º
-          "Antonio Rocha": 15, // 4º
-          "Glauco Aguiar": 12, // 5º
-          "Hugo Bernardes": 11, // 6º
+          "Wendril Oliveira": 30,
+          "Marcos Vinicius": 20,
+          "Pedro Cavalcante": 18,
+          "Antonio Rocha": 15,
+          "Glauco Aguiar": 12,
+          "Hugo Bernardes": 11,
           "Mario Junior": 0,
           "Enderson Alves": 0,
           "Igor Rodrigues": 0,
@@ -111,14 +111,14 @@ const App = () => {
         poleWinner: "Wendril Oliveira",
         mvWinner: "Wendril Oliveira",
         results: {
-          "Wendril Oliveira": 30, // 25 (1º) + 3 (Pole) + 2 (MV)
-          "Marcos Vinicius": 20, // 2º
-          "Glauco Aguiar": 18, // 3º
-          "Saara": 15, // 4º
-          "Pedro Cavalcante": 12, // 5º
-          "Vitoria": 11, // 6º
-          "Marcus Bessa": 10, // 7º
-          "Hugo Bernardes": 8, // 8º
+          "Wendril Oliveira": 30,
+          "Marcos Vinicius": 20,
+          "Glauco Aguiar": 18,
+          "Saara": 15,
+          "Pedro Cavalcante": 12,
+          "Vitoria": 11,
+          "Marcus Bessa": 10,
+          "Hugo Bernardes": 8,
           "Antonio Rocha": 0,
           "Igor Rodrigues": 0,
           "Erick Pacheco": 0,
@@ -230,9 +230,6 @@ const App = () => {
         break;
     }
 
-    const hasPole = stageBonus.poleWinner === item.driver;
-    const hasMV = stageBonus.mvWinner === item.driver;
-
     return (
       <li
         key={item.driver}
@@ -250,45 +247,6 @@ const App = () => {
             <span className="text-2xl font-bold text-gray-300 w-8 text-center">{position}º</span>
           )}
           <span className={nameClasses}>{item.driver}</span>
-          {hasPole && (
-            <span className="ml-2 text-yellow-300" title="Pole Position">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="inline-block"
-              >
-                <path d="M12 2L12 22M2 12H22M12 2L2 12M12 2L22 12M2 12L12 22M22 12L12 22" />
-                <text x="12" y="15" textAnchor="middle" fontSize="12" fontWeight="bold" fill="currentColor">
-                  P
-                </text>
-              </svg>
-            </span>
-          )}
-          {hasMV && (
-            <span className="ml-2 text-green-400" title="Melhor Volta">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="inline-block"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </span>
-          )}
         </div>
         <div className={pointsClasses}>{item.score} Pontos</div>
       </li>
@@ -316,9 +274,7 @@ const App = () => {
         <h2 className="text-3xl font-bold mb-2 text-white text-center">{stage.name}</h2>
         <p className="text-gray-400 text-center mb-6">Resultados da Etapa</p>
         <ul className="space-y-4">
-          {sortedResults.map((item, index) =>
-            renderDriverItem(item, index, { poleWinner: stage.poleWinner, mvWinner: stage.mvWinner })
-          )}
+          {sortedResults.map((item, index) => renderDriverItem(item, index))}
         </ul>
       </div>
     );
@@ -334,8 +290,6 @@ const App = () => {
 
     const podios = performanceData.filter((stage) => typeof stage.position === "number" && stage.position <= 3).length;
     const vitorias = performanceData.filter((stage) => stage.position === 1).length;
-    const poles = driverStages.filter((stage) => stage.hasPole).length;
-    const mv = driverStages.filter((stage) => stage.hasMV).length;
 
     let parts = [];
     parts.push(
@@ -349,12 +303,6 @@ const App = () => {
     }
 
     if (podios > 0) parts.push(`Tem ${podios} pódio(s), sendo ${vitorias} vitória(s).`);
-    if (poles > 0 || mv > 0) {
-      let highlights = [];
-      if (poles > 0) highlights.push(`${poles} Pole(s)`);
-      if (mv > 0) highlights.push(`${mv} Melhor(es) Volta(s)`);
-      parts.push(`Destaques: ${highlights.join(" e ")}.`);
-    }
 
     let projection = "";
     if (rankWithDrop <= 3 || rankNoDrop <= 3) {
@@ -376,8 +324,6 @@ const App = () => {
 
     const driverStages = championshipData.stages.map((stage) => {
       const points = stage.results[selectedDriver] ?? 0;
-      const hasPole = stage.poleWinner === selectedDriver;
-      const hasMV = stage.mvWinner === selectedDriver;
 
       let position = "Ausente";
       if (points > 0) {
@@ -392,13 +338,9 @@ const App = () => {
         name: stage.name,
         points,
         position,
-        hasPole,
-        hasMV,
         dropped: dropSet.has(stage.id),
       };
     });
-
-    const totalBonus = driverStages.reduce((sum, s) => sum + (s.hasPole ? 3 : 0) + (s.hasMV ? 2 : 0), 0);
 
     const totalNoDrop = totalScoresNoDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
     const totalWithDrop = totalScoresWithDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
@@ -448,9 +390,6 @@ const App = () => {
           <p className="text-md text-gray-300">
             Com descarte:&nbsp;
             <span className="font-semibold text-green-400">{totalWithDrop}</span> pts
-          </p>
-          <p className="text-sm text-gray-400 mt-1">
-            Bônus (Pole/MV): <span className="font-semibold text-yellow-300">{totalBonus}</span>
           </p>
         </div>
 
@@ -519,43 +458,6 @@ const App = () => {
                 >
                   {stage.points} Pontos
                 </span>
-                {stage.hasPole && (
-                  <span className="text-yellow-300" title="Pole Position">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 2L12 22M2 12H22M12 2L2 12M12 2L22 12M2 12L12 22M22 12L12 22" />
-                      <text x="12" y="15" textAnchor="middle" fontSize="12" fontWeight="bold" fill="currentColor">
-                        P
-                      </text>
-                    </svg>
-                  </span>
-                )}
-                {stage.hasMV && (
-                  <span className="ml-2 text-green-400" title="Melhor Volta">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                    </svg>
-                  </span>
-                )}
               </div>
             </li>
           ))}
@@ -565,50 +467,11 @@ const App = () => {
           onClick={() => setView("total")}
           className="mt-8 flex items-center justify-center w-full py-3 px-6 rounded-full font-bold text-white bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
         >
-          Voltar para a Classificação Geral
+          Voltar para Geral
         </button>
       </div>
     );
   };
-
-  // ===== Ícones =====
-  const TrophyIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="mr-2"
-    >
-      <path d="m14.5 16-2.5-5-2.5 5-2.5-5L7 16h10" />
-      <path d="M8 12V2H4" />
-      <path d="M16 12V2h4" />
-      <path d="M4 2v18H2v2h20v-2h-2V2H4Zm16 0V20H4V2h16Z" />
-    </svg>
-  );
-
-  const DocumentIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="mr-2"
-    >
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-    </svg>
-  );
 
   // ===== Render principal =====
   return (
@@ -620,34 +483,34 @@ const App = () => {
 
         {/* Controles de visualização */}
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
+          {/* Geral */}
           <button
             onClick={() => {
               setView("total");
               setSelectedDriver(null);
             }}
-            className={`flex items-center justify-center py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
+            className={`py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
               view === "total" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
           >
-            <TrophyIcon />
-            Classificação Geral
+            Geral
           </button>
 
-          {/* Novo botão: Geral com descarte */}
+          {/* Final (com descarte) */}
           <button
             onClick={() => {
               setView("totalWithDrops");
               setSelectedDriver(null);
             }}
-            className={`flex items-center justify-center py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
+            className={`py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
               view === "totalWithDrops" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
             title={`Aplica descarte das ${DROPS} piores etapas por piloto`}
           >
-            <TrophyIcon />
-            Geral c/ Descarte
+            Final
           </button>
 
+          {/* Etapas */}
           <div className="relative inline-block w-full sm:w-auto">
             <select
               value={view === "total" || view === "totalWithDrops" || view === "analysis" ? "" : view}
@@ -673,13 +536,13 @@ const App = () => {
             </div>
           </div>
 
+          {/* Regulamento */}
           <a
             href="https://drive.google.com/file/d/1Hq_C-DA0437ZDJR8Ob8Rg3NM0lLAbUka/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 bg-gray-700 text-gray-300 hover:bg-gray-600 w-full sm:w-auto"
+            className="py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 bg-gray-700 text-gray-300 hover:bg-gray-600 w-full sm:w-auto"
           >
-            <DocumentIcon />
             Regulamento
           </a>
         </div>
@@ -695,7 +558,7 @@ const App = () => {
 
           {view === "totalWithDrops" &&
             renderScoreboard(
-              "Classificação Geral c/ Descarte",
+              "Classificação Final",
               `Ranking após ${championshipData.stages.length} etapa(s) — descartando as ${DROPS} piores por piloto`,
               totalScoresWithDrop
             )}
