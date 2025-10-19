@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const DROPS = 2; // quantidade de etapas descartadas por piloto
-const BONUS_POLE = 3; // Bônus de Pole Position
-const BONUS_MV = 2; // Bônus de Melhor Volta
-const BONUS_TOTAL_PARTICIPATION = 5; // Bônus por participação em todas as 8 etapas
+const DROPS = 2;
+const BONUS_POLE = 3;
+const BONUS_MV = 2;
+const BONUS_TOTAL_PARTICIPATION = 5;
 
-// Tabela de pontuação (1º=25, 2º=20, 3º=18, 4º=15, 5º=12, 6º=11, 7º=10, 8º=8, 9º=6, 10º=4)
-const POS_POINTS = [25, 20, 18, 15, 12, 11, 10, 8, 6, 4]; 
+const POS_POINTS = [25, 20, 18, 15, 12, 11, 10, 8, 6, 4];
 const getPointsForPosition = (position) => POS_POINTS[position - 1] || 0;
 
-
-// Função para mapear nomes que apareceram diferentes nos PDFs
 const normalizeDriverName = (name) => {
-  // CORREÇÃO: Garante que é uma string antes de chamar .trim() e .toUpperCase()
-  if (typeof name !== 'string' || !name) return ""; 
-
+  if (typeof name !== 'string' || !name) return "";
   const normalized = name.trim().toUpperCase();
   if (normalized.includes("GLAUCO AGUIAR")) return "Glauco Aguiar";
   if (normalized.includes("MARCOS VINICIUS")) return "Marcos Vinicius";
@@ -41,48 +36,38 @@ const normalizeDriverName = (name) => {
   if (normalized.includes("JUNIO")) return "Junio";
   if (normalized.includes("MARDEN ALMEIDA")) return "Marden Almeida";
   if (normalized.includes("BRUNO MATHEUS PINHEIRO")) return "Bruno Matheus";
-  // Novos pilotos para Etapa 6
   return name.trim();
 };
 
-// ====================================================================================================
-// FUNÇÃO PARA CALCULAR OS PONTOS TOTAIS DA ETAPA (Base + Bônus)
-// Esta função será usada para recalcular os pontos históricos.
-// ====================================================================================================
-
 const calculateStagePoints = (resultsArray, poleWinner, mvWinner) => {
-    const stageResults = {};
-    resultsArray.forEach((r, index) => {
-        const position = index + 1;
-        const driverName = normalizeDriverName(r.driver);
-        let points = getPointsForPosition(position);
+  const stageResults = {};
+  resultsArray.forEach((r, index) => {
+    const position = index + 1;
+    const driverName = normalizeDriverName(r.driver);
+    let points = getPointsForPosition(position);
 
-        if (driverName === normalizeDriverName(poleWinner)) {
-            points += BONUS_POLE;
-        }
-        if (driverName === normalizeDriverName(mvWinner)) {
-            points += BONUS_MV;
-        }
-        stageResults[driverName] = points;
-    });
-    return stageResults;
+    if (driverName === normalizeDriverName(poleWinner)) {
+      points += BONUS_POLE;
+    }
+    if (driverName === normalizeDriverName(mvWinner)) {
+      points += BONUS_MV;
+    }
+    stageResults[driverName] = points;
+  });
+  return stageResults;
 };
 
-// ====================================================================================================
-
-
 const App = () => {
-  // ===== Dados iniciais (Atualizados com a nova regra de pontuação) =====
   const initialData = {
-    totalStages: 8, // Total de etapas na temporada
+    totalStages: 8,
     drivers: [
-      "Glauco Aguiar", "Marcos Vinicius", "Pedro Cavalcante", "Antonio Rocha", 
-      "Igor Rodrigues", "Erick Pacheco", "Cleber Santos", "Marcus Bessa", 
-      "Marjara Maquiné", "Ana Cruz", "Mario Junior", "Hugo Bernardes", 
-      "Wendril Oliveira", "Enderson Alves", "Amarildo Vale", "Erick Bitencourt", 
-      "Saara Santos", "Vitoria", "Matheus Keveny", "Denilson Martins", 
+      "Glauco Aguiar", "Marcos Vinicius", "Pedro Cavalcante", "Antonio Rocha",
+      "Igor Rodrigues", "Erick Pacheco", "Cleber Santos", "Marcus Bessa",
+      "Marjara Maquiné", "Ana Cruz", "Mario Junior", "Hugo Bernardes",
+      "Wendril Oliveira", "Enderson Alves", "Amarildo Vale", "Erick Bitencourt",
+      "Saara Santos", "Vitoria", "Matheus Keveny", "Denilson Martins",
       "Sara Santos", "Claudio Augusto de Paula", "Junio", "Marden Almeida", "Bruno Matheus"
-    ].filter((d, i, self) => self.indexOf(d) === i), // Garante que a lista de pilotos é única
+    ].filter((d, i, self) => self.indexOf(d) === i),
     stages: [
       {
         id: 1,
@@ -90,14 +75,14 @@ const App = () => {
         poleWinner: "Glauco Aguiar",
         mvWinner: "Glauco Aguiar",
         results: calculateStagePoints([
-          { driver: "Glauco Aguiar", position: 1 }, // Base 25 + Pole 3 + MV 2 = 30
-          { driver: "Marcos Vinicius", position: 2 }, // Base 20 = 20
-          { driver: "Pedro Cavalcante", position: 3 }, // Base 18 = 18
-          { driver: "Antonio Rocha", position: 4 }, // Base 15 = 15
-          { driver: "Igor Rodrigues", position: 5 }, // Base 12 = 12
-          { driver: "Erick Pacheco", position: 6 }, // Base 11 = 11
-          { driver: "Cleber Santos", position: 7 }, // Base 10 = 10
-          { driver: "Marcus Bessa", position: 8 }, // Base 8 = 8
+          { driver: "Glauco Aguiar", position: 1 },
+          { driver: "Marcos Vinicius", position: 2 },
+          { driver: "Pedro Cavalcante", position: 3 },
+          { driver: "Antonio Rocha", position: 4 },
+          { driver: "Igor Rodrigues", position: 5 },
+          { driver: "Erick Pacheco", position: 6 },
+          { driver: "Cleber Santos", position: 7 },
+          { driver: "Marcus Bessa", position: 8 },
         ], "Glauco Aguiar", "Glauco Aguiar"),
       },
       {
@@ -106,16 +91,16 @@ const App = () => {
         poleWinner: null,
         mvWinner: "Antonio Rocha",
         results: calculateStagePoints([
-          { driver: "Antonio Rocha", position: 1 }, // Base 25 + MV 2 = 27
-          { driver: "Mario Junior", position: 2 }, // Base 20 = 20
-          { driver: "Hugo Bernardes", position: 3 }, // Base 18 = 18
-          { driver: "Glauco Aguiar", position: 4 }, // Base 15 = 15
-          { driver: "Marcos Vinicius", position: 5 }, // Base 12 = 12
-          { driver: "Enderson Alves", position: 6 }, // Base 11 = 11
-          { driver: "Wendril Oliveira", position: 7 }, // Base 10 = 10
-          { driver: "Igor Rodrigues", position: 8 }, // Base 8 = 8
-          { driver: "Amarildo Vale", position: 9 }, // Base 6 = 6
-          { driver: "Cleber Santos", position: 10 }, // Base 4 = 4
+          { driver: "Antonio Rocha", position: 1 },
+          { driver: "Mario Junior", position: 2 },
+          { driver: "Hugo Bernardes", position: 3 },
+          { driver: "Glauco Aguiar", position: 4 },
+          { driver: "Marcos Vinicius", position: 5 },
+          { driver: "Enderson Alves", position: 6 },
+          { driver: "Wendril Oliveira", position: 7 },
+          { driver: "Igor Rodrigues", position: 8 },
+          { driver: "Amarildo Vale", position: 9 },
+          { driver: "Cleber Santos", position: 10 },
         ], null, "Antonio Rocha"),
       },
       {
@@ -124,12 +109,12 @@ const App = () => {
         poleWinner: "Wendril Oliveira",
         mvWinner: "Wendril Oliveira",
         results: calculateStagePoints([
-          { driver: "Wendril Oliveira", position: 1 }, // Base 25 + Pole 3 + MV 2 = 30
-          { driver: "Marcos Vinicius", position: 2 }, // Base 20 = 20
-          { driver: "Pedro Cavalcante", position: 3 }, // Base 18 = 18
-          { driver: "Antonio Rocha", position: 4 }, // Base 15 = 15
-          { driver: "Glauco Aguiar", position: 5 }, // Base 12 = 12
-          { driver: "Hugo Bernardes", position: 6 }, // Base 11 = 11
+          { driver: "Wendril Oliveira", position: 1 },
+          { driver: "Marcos Vinicius", position: 2 },
+          { driver: "Pedro Cavalcante", position: 3 },
+          { driver: "Antonio Rocha", position: 4 },
+          { driver: "Glauco Aguiar", position: 5 },
+          { driver: "Hugo Bernardes", position: 6 },
         ], "Wendril Oliveira", "Wendril Oliveira"),
       },
       {
@@ -138,14 +123,14 @@ const App = () => {
         poleWinner: "Wendril Oliveira",
         mvWinner: "Wendril Oliveira",
         results: calculateStagePoints([
-          { driver: "Wendril Oliveira", position: 1 }, // Base 25 + Pole 3 + MV 2 = 30
-          { driver: "Marcos Vinicius", position: 2 }, // Base 20 = 20
-          { driver: "Glauco Aguiar", position: 3 }, // Base 18 = 18
-          { driver: "Saara Santos", position: 4 }, // Base 15 = 15
-          { driver: "Pedro Cavalcante", position: 5 }, // Base 12 = 12
-          { driver: "Vitoria", position: 6 }, // Base 11 = 11
-          { driver: "Marcus Bessa", position: 7 }, // Base 10 = 10
-          { driver: "Hugo Bernardes", position: 8 }, // Base 8 = 8
+          { driver: "Wendril Oliveira", position: 1 },
+          { driver: "Marcos Vinicius", position: 2 },
+          { driver: "Glauco Aguiar", position: 3 },
+          { driver: "Saara Santos", position: 4 },
+          { driver: "Pedro Cavalcante", position: 5 },
+          { driver: "Vitoria", position: 6 },
+          { driver: "Marcus Bessa", position: 7 },
+          { driver: "Hugo Bernardes", position: 8 },
         ], "Wendril Oliveira", "Wendril Oliveira"),
       },
       {
@@ -154,14 +139,14 @@ const App = () => {
         poleWinner: null,
         mvWinner: "Wendril Oliveira",
         results: calculateStagePoints([
-          { driver: "Mario Junior", position: 1 }, // Base 25 = 25
-          { driver: "Glauco Aguiar", position: 2 }, // Base 20 = 20
-          { driver: "Matheus Keveny", position: 3 }, // Base 18 = 18
-          { driver: "Hugo Bernardes", position: 4 }, // Base 15 = 15
-          { driver: "Denilson Martins", position: 5 }, // Base 12 = 12
-          { driver: "Saara Santos", position: 6 }, // Base 11 = 11
-          { driver: "Claudio Augusto de Paula", position: 7 }, // Base 10 = 10
-          { driver: "Wendril Oliveira", position: 8 }, // Base 8 + MV 2 = 10
+          { driver: "Mario Junior", position: 1 },
+          { driver: "Glauco Aguiar", position: 2 },
+          { driver: "Matheus Keveny", position: 3 },
+          { driver: "Hugo Bernardes", position: 4 },
+          { driver: "Denilson Martins", position: 5 },
+          { driver: "Saara Santos", position: 6 },
+          { driver: "Claudio Augusto de Paula", position: 7 },
+          { driver: "Wendril Oliveira", position: 8 },
         ], null, "Wendril Oliveira"),
       },
       {
@@ -170,34 +155,32 @@ const App = () => {
         poleWinner: "Glauco Aguiar",
         mvWinner: "Mario Junior",
         results: calculateStagePoints([
-          { driver: "Mario Junior", position: 1 }, // Base 25 + MV 2 = 27
-          { driver: "Glauco Aguiar", position: 2 }, // Base 20 + Pole 3 = 23
-          { driver: "Junio", position: 3 }, // Base 18 = 18
-          { driver: "Wendril Oliveira", position: 4 }, // Base 15 = 15
-          { driver: "Marden Almeida", position: 5 }, // Base 12 = 12
-          { driver: "Marcos Vinicius", position: 6 }, // Base 11 = 11
-          { driver: "Bruno Matheus", position: 7 }, // Base 10 = 10
-          { driver: "Pedro Cavalcante", position: 8 }, // Base 8 = 8
-          { driver: "Hugo Bernardes", position: 9 }, // Base 6 = 6
-          { driver: "Igor Rodrigues", position: 10 }, // Base 4 = 4
-          { driver: "Claudio Augusto de Paula", position: 11 }, // Posição 11 não pontua (0)
-          { driver: "Matheus Keveny", position: "NC" }, // Pontos zero
-          { driver: "Saara Santos", position: "NC" }, // Pontos zero
+          { driver: "Mario Junior", position: 1 },
+          { driver: "Glauco Aguiar", position: 2 },
+          { driver: "Junio", position: 3 },
+          { driver: "Wendril Oliveira", position: 4 },
+          { driver: "Marden Almeida", position: 5 },
+          { driver: "Marcos Vinicius", position: 6 },
+          { driver: "Bruno Matheus", position: 7 },
+          { driver: "Pedro Cavalcante", position: 8 },
+          { driver: "Hugo Bernardes", position: 9 },
+          { driver: "Igor Rodrigues", position: 10 },
+          { driver: "Claudio Augusto de Paula", position: 11 },
+          { driver: "Matheus Keveny", position: "NC" },
+          { driver: "Saara Santos", position: "NC" },
         ], "Glauco Aguiar", "Mario Junior"),
       },
     ],
   };
 
-  // ===== Estados =====
   const [championshipData, setChampionshipData] = useState(initialData);
-  const [view, setView] = useState('total'); // 'total' | 'totalWithDrops' | stageId | 'analysis'
+  const [view, setView] = useState('total');
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   const [totalScoresNoDrop, setTotalScoresNoDrop] = useState([]);
   const [totalScoresWithDrop, setTotalScoresWithDrop] = useState([]);
   const [uniqueDrivers, setUniqueDrivers] = useState([]);
 
-  // Atualiza a lista de pilotos únicos sempre que os dados mudam
   useEffect(() => {
     const driversSet = new Set(initialData.drivers);
     championshipData.stages.forEach((stage) => {
@@ -206,7 +189,6 @@ const App = () => {
     setUniqueDrivers(Array.from(driversSet).sort());
   }, [championshipData, initialData.drivers]);
 
-  // ===== Helpers de descarte (CORRIGIDO) =====
   const getDriverStageArray = (driver) =>
     championshipData.stages.map((stage) => ({
       stageId: stage.id,
@@ -216,22 +198,13 @@ const App = () => {
 
   const computeDropSetForDriver = (driver) => {
     const arr = getDriverStageArray(driver);
-    
-    // Se o número total de etapas é menor ou igual ao número de drops, nada é descartado
-    if (arr.length <= DROPS) {
-        return new Set();
-    }
-
-    // Ordena TODOS os resultados, incluindo pontuação 0 (ausências), do menor para o maior
+    if (arr.length <= DROPS) return new Set();
     const sorted = arr
       .map((s) => ({ stageId: s.stageId, points: s.points }))
-      .sort((a, b) => a.points - b.points); 
-
-    // Seleciona os DROPS piores resultados (as ausências virão primeiro)
+      .sort((a, b) => a.points - b.points);
     const toDrop = sorted.slice(0, DROPS).map((o) => o.stageId);
     return new Set(toDrop);
   };
-  // =========================================================
 
   const sumPointsWithDrops = (driver) => {
     const dropSet = computeDropSetForDriver(driver);
@@ -242,37 +215,31 @@ const App = () => {
       if (pts > 0) stagesParticipated++;
       if (!dropSet.has(stage.id)) sum += pts;
     });
-    
-    // Verifica o bônus de participação total, mas só aplica no final da temporada
     if (championshipData.stages.length === initialData.totalStages && stagesParticipated === initialData.totalStages) {
-        sum += BONUS_TOTAL_PARTICIPATION;
+      sum += BONUS_TOTAL_PARTICIPATION;
     }
-    
     return { sum, dropSet, stagesParticipated };
   };
 
-  // ===== Cálculo dos dois rankings =====
   useEffect(() => {
     const driversToRank = uniqueDrivers;
 
-    // Sem descarte
     const scoresNoDrop = {};
     driversToRank.forEach((d) => (scoresNoDrop[d] = 0));
     championshipData.stages.forEach((stage) => {
       for (const d in stage.results) {
-          const normalizedName = normalizeDriverName(d);
-          if (scoresNoDrop.hasOwnProperty(normalizedName)) {
-              scoresNoDrop[normalizedName] += stage.results[d];
-          }
+        const normalizedName = normalizeDriverName(d);
+        if (scoresNoDrop.hasOwnProperty(normalizedName)) {
+          scoresNoDrop[normalizedName] += stage.results[d];
+        }
       }
     });
     const sortedNoDrop = Object.entries(scoresNoDrop)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18); // Limita ao Top 18
+      .slice(0, 18);
     setTotalScoresNoDrop(sortedNoDrop);
 
-    // Com descarte
     const scoresWithDrop = {};
     driversToRank.forEach((d) => {
       const { sum } = sumPointsWithDrops(d);
@@ -281,12 +248,10 @@ const App = () => {
     const sortedWithDrop = Object.entries(scoresWithDrop)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18); // Limita ao Top 18
+      .slice(0, 18);
     setTotalScoresWithDrop(sortedWithDrop);
   }, [championshipData, uniqueDrivers]);
 
-
-  // ===== UI: itens de piloto =====
   const renderDriverItem = (item, index) => {
     const position = index + 1;
     let liClasses =
@@ -322,7 +287,8 @@ const App = () => {
         key={item.driver}
         className={liClasses}
         onClick={() => {
-          setSelectedDriver(item.driver);
+          // normaliza no clique para garantir match em todas as buscas posteriores
+          setSelectedDriver(normalizeDriverName(item.driver));
           setView("analysis");
         }}
       >
@@ -355,7 +321,7 @@ const App = () => {
     const sortedResults = Object.entries(stage.results)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18); // Limita ao Top 18
+      .slice(0, 18);
 
     return (
       <div className="p-6 rounded-3xl w-full animate-fadeIn">
@@ -370,26 +336,26 @@ const App = () => {
     );
   };
 
-  // ===== Análise do piloto =====
   const generatePilotAnalysis = (driverName, rankNoDrop, totalNoDrop, rankWithDrop, totalWithDrop, driverStages) => {
     const stagesCompleted = driverStages.length;
     const stagesRemaining = Math.max(initialData.totalStages - stagesCompleted, 0);
 
-    // Encontra a posição real na etapa
     const detailedStages = driverStages.map(stage => {
-        let position = "Ausente";
-        if (stage.points > 0) {
-            const stageData = championshipData.stages.find(s => s.id === stage.id);
-            const sortedStageResults = Object.entries(stageData.results)
-                .map(([driver, score]) => ({ driver: normalizeDriverName(driver), score }))
-                .sort((a, b) => b.score - a.score);
-            position = sortedStageResults.findIndex((d) => d.driver === driverName) + 1;
+      let position = "Ausente";
+      if (stage.points > 0) {
+        const stageData = championshipData.stages.find(s => s.id === stage.id);
+        if (stageData) {
+          const sortedStageResults = Object.entries(stageData.results)
+            .map(([driver, score]) => ({ driver: normalizeDriverName(driver), score }))
+            .sort((a, b) => b.score - a.score);
+          const idx = sortedStageResults.findIndex((d) => d.driver === driverName);
+          position = idx >= 0 ? idx + 1 : "Ausente";
         }
-        return { ...stage, position };
+      }
+      return { ...stage, position };
     });
 
     const performanceData = detailedStages.filter((stage) => stage.points > 0);
-
     const podios = performanceData.filter((stage) => typeof stage.position === "number" && stage.position <= 3).length;
     const vitorias = performanceData.filter((stage) => stage.position === 1).length;
 
@@ -408,9 +374,9 @@ const App = () => {
 
     let projection = "";
     if (stagesRemaining === 0) {
-        if (rankWithDrop === 1) projection = "Parabéns! É o virtual campeão, aguardando a oficialização.";
-        else if (rankWithDrop <= 3) projection = "Temporada excelente! Garantiu um lugar no pódio do campeonato.";
-        else projection = "Temporada concluída. Foco na preparação para o próximo ano!";
+      if (rankWithDrop === 1) projection = "Parabéns! É o virtual campeão, aguardando a oficialização.";
+      else if (rankWithDrop <= 3) projection = "Temporada excelente! Garantiu um lugar no pódio do campeonato.";
+      else projection = "Temporada concluída. Foco na preparação para o próximo ano!";
     } else if (rankWithDrop <= 2) {
       projection = `Mantendo a performance, o título está próximo. Concentração total nas últimas ${stagesRemaining} etapas.`;
     } else if (rankWithDrop <= 5) {
@@ -432,14 +398,15 @@ const App = () => {
       const points = stage.results[selectedDriver] ?? 0;
 
       let position = "Ausente";
-      let isPole = normalizeDriverName(stage.poleWinner) === selectedDriver;
-      let isMV = normalizeDriverName(stage.mvWinner) === selectedDriver;
-      
+      const isPole = normalizeDriverName(stage.poleWinner) === selectedDriver;
+      const isMV = normalizeDriverName(stage.mvWinner) === selectedDriver;
+
       if (points > 0) {
         const sortedStageResults = Object.entries(stage.results)
           .map(([driver, score]) => ({ driver: normalizeDriverName(driver), score }))
           .sort((a, b) => b.score - a.score);
-        position = sortedStageResults.findIndex((d) => d.driver === selectedDriver) + 1;
+        const idx = sortedStageResults.findIndex((d) => d.driver === selectedDriver);
+        position = idx >= 0 ? idx + 1 : "Ausente";
       }
 
       return {
@@ -456,8 +423,10 @@ const App = () => {
     const totalNoDrop = totalScoresNoDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
     const totalWithDrop = totalScoresWithDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
 
-    const rankNoDrop = (totalScoresNoDrop.findIndex((d) => d.driver === selectedDriver) + 1) || 0;
-    const rankWithDrop = (totalScoresWithDrop.findIndex((d) => d.driver === selectedDriver) + 1) || 0;
+    const idxNoDrop = totalScoresNoDrop.findIndex((d) => d.driver === selectedDriver);
+    const idxWithDrop = totalScoresWithDrop.findIndex((d) => d.driver === selectedDriver);
+    const rankNoDrop = idxNoDrop >= 0 ? idxNoDrop + 1 : 0;
+    const rankWithDrop = idxWithDrop >= 0 ? idxWithDrop + 1 : 0;
 
     const chartData = driverStages.map((stage) => ({
       name: stage.name,
@@ -524,17 +493,18 @@ const App = () => {
               <YAxis
                 label={{ value: "Posição", angle: -90, position: "insideLeft", fill: "#cbd5e0" }}
                 stroke="#cbd5e0"
-                domain={[12, 1]} // Limita de 1º a 12º e inverte a ordem
+                domain={[1, 12]}           // <= ajuste: min->max
                 tickCount={12}
-                reversed={true} // O maior número (12) fica na base, 1 no topo
+                reversed={true}            // <= mantém invertido (1 no topo)
               />
               <Tooltip
                 contentStyle={{ backgroundColor: "#2d3748", border: "none", borderRadius: "8px" }}
                 labelStyle={{ color: "#e2e8f0" }}
                 itemStyle={{ color: "#e2e8f0" }}
-                formatter={(value, name, props) => {
-                  const realPosition = props.payload.position;
-                  if (realPosition === null) return ["Ausente", "Posição"];
+                formatter={(value, name, item) => {
+                  // <= ajuste: tratamento defensivo
+                  const realPosition = item && item.payload ? item.payload.position : null;
+                  if (realPosition == null) return ["Ausente", "Posição"];
                   return [`Posição: ${realPosition}º`, "Posição"];
                 }}
               />
@@ -587,7 +557,6 @@ const App = () => {
     );
   };
 
-  // ===== Render principal =====
   return (
     <div className="bg-gray-900 min-h-screen p-8 font-sans flex flex-col items-center">
       <div className="max-w-xl w-full">
@@ -595,9 +564,7 @@ const App = () => {
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-2">TEMPORADA DE KART 2025</h1>
         </header>
 
-        {/* Controles de visualização */}
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
-          {/* Geral */}
           <button
             onClick={() => {
               setView("total");
@@ -610,7 +577,6 @@ const App = () => {
             Geral
           </button>
 
-          {/* Final (com descarte) */}
           <button
             onClick={() => {
               setView("totalWithDrops");
@@ -624,7 +590,6 @@ const App = () => {
             Final
           </button>
 
-          {/* Etapas */}
           <div className="relative inline-block w-full sm:w-auto">
             <select
               value={view === "total" || view === "totalWithDrops" || view === "analysis" ? "" : view}
@@ -650,7 +615,6 @@ const App = () => {
             </div>
           </div>
 
-          {/* Regulamento */}
           <a
             href="https://drive.google.com/file/d/1Hq_C-DA0437ZDJR8Ob8Rg3NM0lLAbUka/view?usp=sharing"
             target="_blank"
@@ -661,7 +625,6 @@ const App = () => {
           </a>
         </div>
 
-        {/* Conteúdo principal */}
         <main className="mt-8">
           {view === "total" &&
             renderScoreboard(
