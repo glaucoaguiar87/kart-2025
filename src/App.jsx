@@ -346,6 +346,7 @@ export default function App() {
         key={item.driver}
         className={liClasses}
         onClick={(e) => { // CAPTURA E PREVINE O EVENTO AQUI
+          e.preventDefault(); // Adicionado para ambientes de produção como o Vercel, caso o li esteja aninhado em um link implícito
           e.stopPropagation();
           setSelectedDriver(item.driver);
           setView("analysis");
