@@ -345,7 +345,8 @@ export default function App() {
       <li
         key={item.driver}
         className={liClasses}
-        onClick={() => { 
+        onClick={(e) => { // CAPTURA E PREVINE O EVENTO AQUI
+          e.stopPropagation();
           setSelectedDriver(item.driver);
           setView("analysis");
         }}
