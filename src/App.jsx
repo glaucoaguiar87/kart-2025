@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const DROPS = 2; // etapas descartadas
-const BONUS_POLE = 3;
-const BONUS_MV = 2;
-const BONUS_TOTAL_PARTICIPATION = 5;
+const DROPS = 2; // quantidade de etapas descartadas por piloto
+const BONUS_POLE = 3; // Bônus de Pole Position
+const BONUS_MV = 2; // Bônus de Melhor Volta
+const BONUS_TOTAL_PARTICIPATION = 5; // Bônus por participação em todas as 8 etapas
 
-const POS_POINTS = [25, 20, 18, 15, 12, 11, 10, 8, 6, 4];
+// Tabela de pontuação (1º=25, 2º=20, 3º=18, 4º=15, 5º=12, 6º=11, 7º=10, 8º=8, 9º=6, 10º=4)
+const POS_POINTS = [25, 20, 18, 15, 12, 11, 10, 8, 6, 4]; 
 const getPointsForPosition = (position) => POS_POINTS[position - 1] || 0;
 
-// Normalização de nomes
+
+// Função para mapear nomes que apareceram diferentes nos PDFs
 const normalizeDriverName = (name) => {
-  if (typeof name !== "string" || !name) return "";
+  // CORREÇÃO: Garante que é uma string antes de chamar .trim() e .toUpperCase()
+  if (typeof name !== 'string' || !name) return ""; 
+
   const normalized = name.trim().toUpperCase();
+  // Unificação de nomes longos e variações
   if (normalized.includes("GLAUCO AGUIAR")) return "Glauco Aguiar";
   if (normalized.includes("MARCOS VINICIUS")) return "Marcos Vinicius";
   if (normalized.includes("PEDRO CAVALCANTE")) return "Pedro Cavalcante";
@@ -46,195 +42,186 @@ const normalizeDriverName = (name) => {
   if (normalized.includes("JUNIO")) return "Junio";
   if (normalized.includes("MARDEN ALMEIDA")) return "Marden Almeida";
   if (normalized.includes("BRUNO MATHEUS PINHEIRO")) return "Bruno Matheus";
+  if (normalized.includes("PAULO HENRIQUE")) return "Paulo Henrique Silva";
+  if (normalized.includes("FÁBIO OLIVEIRA")) return "Fábio Oliveira";
+  
   return name.trim();
 };
 
-// Calcula pontos de uma etapa (base + bônus)
+// ====================================================================================================
+// FUNÇÃO PARA CALCULAR OS PONTOS TOTAIS DA ETAPA (Base + Bônus)
+// Esta função será usada para recalcular os pontos históricos.
+// ====================================================================================================
+
 const calculateStagePoints = (resultsArray, poleWinner, mvWinner) => {
-  const stageResults = {};
-  resultsArray.forEach((r, index) => {
-    const position = index + 1;
-    const driverName = normalizeDriverName(r.driver);
-    let points = getPointsForPosition(position);
-    if (driverName === normalizeDriverName(poleWinner)) points += BONUS_POLE;
-    if (driverName === normalizeDriverName(mvWinner)) points += BONUS_MV;
-    stageResults[driverName] = points;
-  });
-  return stageResults;
+    const stageResults = {};
+    resultsArray.forEach((r, index) => {
+        const position = index + 1;
+        const driverName = normalizeDriverName(r.driver);
+        // Posições acima de 10 não pontuam na tabela base
+        let points = getPointsForPosition(position);
+
+        if (driverName === normalizeDriverName(poleWinner)) {
+            points += BONUS_POLE;
+        }
+        if (driverName === normalizeDriverName(mvWinner)) {
+            points += BONUS_MV;
+        }
+        stageResults[driverName] = points;
+    });
+    return stageResults;
 };
 
-const App = () => {
-  // initialData memoizado para manter a mesma referência entre renders
-  const initialData = useMemo(
-    () => ({
-      totalStages: 8,
-      drivers: [
-        "Glauco Aguiar",
-        "Marcos Vinicius",
-        "Pedro Cavalcante",
-        "Antonio Rocha",
-        "Igor Rodrigues",
-        "Erick Pacheco",
-        "Cleber Santos",
-        "Marcus Bessa",
-        "Marjara Maquiné",
-        "Ana Cruz",
-        "Mario Junior",
-        "Hugo Bernardes",
-        "Wendril Oliveira",
-        "Enderson Alves",
-        "Amarildo Vale",
-        "Erick Bitencourt",
-        "Saara Santos",
-        "Vitoria",
-        "Matheus Keveny",
-        "Denilson Martins",
-        "Sara Santos",
-        "Claudio Augusto de Paula",
-        "Junio",
-        "Marden Almeida",
-        "Bruno Matheus",
-      ].filter((d, i, self) => self.indexOf(d) === i),
-      stages: [
-        {
-          id: 1,
-          name: "Etapa 1",
-          poleWinner: "Glauco Aguiar",
-          mvWinner: "Glauco Aguiar",
-          results: calculateStagePoints(
-            [
-              { driver: "Glauco Aguiar", position: 1 },
-              { driver: "Marcos Vinicius", position: 2 },
-              { driver: "Pedro Cavalcante", position: 3 },
-              { driver: "Antonio Rocha", position: 4 },
-              { driver: "Igor Rodrigues", position: 5 },
-              { driver: "Erick Pacheco", position: 6 },
-              { driver: "Cleber Santos", position: 7 },
-              { driver: "Marcus Bessa", position: 8 },
-            ],
-            "Glauco Aguiar",
-            "Glauco Aguiar"
-          ),
-        },
-        {
-          id: 2,
-          name: "Etapa 2",
-          poleWinner: null,
-          mvWinner: "Antonio Rocha",
-          results: calculateStagePoints(
-            [
-              { driver: "Antonio Rocha", position: 1 },
-              { driver: "Mario Junior", position: 2 },
-              { driver: "Hugo Bernardes", position: 3 },
-              { driver: "Glauco Aguiar", position: 4 },
-              { driver: "Marcos Vinicius", position: 5 },
-              { driver: "Enderson Alves", position: 6 },
-              { driver: "Wendril Oliveira", position: 7 },
-              { driver: "Igor Rodrigues", position: 8 },
-              { driver: "Amarildo Vale", position: 9 },
-              { driver: "Cleber Santos", position: 10 },
-            ],
-            null,
-            "Antonio Rocha"
-          ),
-        },
-        {
-          id: 3,
-          name: "Etapa 3",
-          poleWinner: "Wendril Oliveira",
-          mvWinner: "Wendril Oliveira",
-          results: calculateStagePoints(
-            [
-              { driver: "Wendril Oliveira", position: 1 },
-              { driver: "Marcos Vinicius", position: 2 },
-              { driver: "Pedro Cavalcante", position: 3 },
-              { driver: "Antonio Rocha", position: 4 },
-              { driver: "Glauco Aguiar", position: 5 },
-              { driver: "Hugo Bernardes", position: 6 },
-            ],
-            "Wendril Oliveira",
-            "Wendril Oliveira"
-          ),
-        },
-        {
-          id: 4,
-          name: "Etapa 4",
-          poleWinner: "Wendril Oliveira",
-          mvWinner: "Wendril Oliveira",
-          results: calculateStagePoints(
-            [
-              { driver: "Wendril Oliveira", position: 1 },
-              { driver: "Marcos Vinicius", position: 2 },
-              { driver: "Glauco Aguiar", position: 3 },
-              { driver: "Saara Santos", position: 4 },
-              { driver: "Pedro Cavalcante", position: 5 },
-              { driver: "Vitoria", position: 6 },
-              { driver: "Marcus Bessa", position: 7 },
-              { driver: "Hugo Bernardes", position: 8 },
-            ],
-            "Wendril Oliveira",
-            "Wendril Oliveira"
-          ),
-        },
-        {
-          id: 5,
-          name: "Etapa 5",
-          poleWinner: null,
-          mvWinner: "Wendril Oliveira",
-          results: calculateStagePoints(
-            [
-              { driver: "Mario Junior", position: 1 },
-              { driver: "Glauco Aguiar", position: 2 },
-              { driver: "Matheus Keveny", position: 3 },
-              { driver: "Hugo Bernardes", position: 4 },
-              { driver: "Denilson Martins", position: 5 },
-              { driver: "Saara Santos", position: 6 },
-              { driver: "Claudio Augusto de Paula", position: 7 },
-              { driver: "Wendril Oliveira", position: 8 },
-            ],
-            null,
-            "Wendril Oliveira"
-          ),
-        },
-        {
-          id: 6,
-          name: "Etapa 6",
-          poleWinner: "Glauco Aguiar",
-          mvWinner: "Mario Junior",
-          results: calculateStagePoints(
-            [
-              { driver: "Mario Junior", position: 1 },
-              { driver: "Glauco Aguiar", position: 2 },
-              { driver: "Junio", position: 3 },
-              { driver: "Wendril Oliveira", position: 4 },
-              { driver: "Marden Almeida", position: 5 },
-              { driver: "Marcos Vinicius", position: 6 },
-              { driver: "Bruno Matheus", position: 7 },
-              { driver: "Pedro Cavalcante", position: 8 },
-              { driver: "Hugo Bernardes", position: 9 },
-              { driver: "Igor Rodrigues", position: 10 },
-              { driver: "Claudio Augusto de Paula", position: 11 }, // 0 pts
-              { driver: "Matheus Keveny", position: "NC" }, // 0 pts
-              { driver: "Saara Santos", position: "NC" }, // 0 pts
-            ],
-            "Glauco Aguiar",
-            "Mario Junior"
-          ),
-        },
-      ],
-    }),
-    []
-  );
+// ====================================================================================================
 
-  // Estados
+// CORREÇÃO: Exportando a função diretamente
+export default function App() {
+  // ===== Dados iniciais (Atualizados com a nova regra de pontuação) =====
+  const initialData = {
+    totalStages: 8, // Total de etapas na temporada
+    drivers: [
+      "Glauco Aguiar", "Marcos Vinicius", "Pedro Cavalcante", "Antonio Rocha", 
+      "Igor Rodrigues", "Erick Pacheco", "Cleber Santos", "Marcus Bessa", 
+      "Marjara Maquiné", "Ana Cruz", "Mario Junior", "Hugo Bernardes", 
+      "Wendril Oliveira", "Enderson Alves", "Amarildo Vale", "Erick Bitencourt", 
+      "Saara Santos", "Vitoria", "Matheus Keveny", "Denilson Martins", 
+      "Claudio Augusto de Paula", "Junio", "Marden Almeida", "Bruno Matheus",
+      "Paulo Henrique Silva", "Fábio Oliveira"
+    ].filter((d, i, self) => self.indexOf(d) === i), // Garante que a lista de pilotos é única
+    stages: [
+      {
+        id: 1,
+        name: "Etapa 1",
+        poleWinner: "Glauco Aguiar",
+        mvWinner: "Glauco Aguiar",
+        results: calculateStagePoints([
+          { driver: "Glauco Aguiar", position: 1 }, 
+          { driver: "Marcos Vinicius", position: 2 }, 
+          { driver: "Pedro Cavalcante", position: 3 }, 
+          { driver: "Antonio Rocha", position: 4 }, 
+          { driver: "Igor Rodrigues", position: 5 }, 
+          { driver: "Erick Pacheco", position: 6 }, 
+          { driver: "Cleber Santos", position: 7 }, 
+          { driver: "Marcus Bessa", position: 8 }, 
+        ], "Glauco Aguiar", "Glauco Aguiar"),
+      },
+      {
+        id: 2,
+        name: "Etapa 2",
+        poleWinner: null,
+        mvWinner: "Antonio Rocha",
+        results: calculateStagePoints([
+          { driver: "Antonio Rocha", position: 1 }, 
+          { driver: "Mario Junior", position: 2 }, 
+          { driver: "Hugo Bernardes", position: 3 }, 
+          { driver: "Glauco Aguiar", position: 4 }, 
+          { driver: "Marcos Vinicius", position: 5 }, 
+          { driver: "Enderson Alves", position: 6 }, 
+          { driver: "Wendril Oliveira", position: 7 }, 
+          { driver: "Igor Rodrigues", position: 8 }, 
+          { driver: "Amarildo Vale", position: 9 }, 
+          { driver: "Cleber Santos", position: 10 }, 
+        ], null, "Antonio Rocha"),
+      },
+      {
+        id: 3,
+        name: "Etapa 3",
+        poleWinner: "Wendril Oliveira",
+        mvWinner: "Wendril Oliveira",
+        results: calculateStagePoints([
+          { driver: "Wendril Oliveira", position: 1 }, 
+          { driver: "Marcos Vinicius", position: 2 }, 
+          { driver: "Pedro Cavalcante", position: 3 }, 
+          { driver: "Antonio Rocha", position: 4 }, 
+          { driver: "Glauco Aguiar", position: 5 }, 
+          { driver: "Hugo Bernardes", position: 6 }, 
+        ], "Wendril Oliveira", "Wendril Oliveira"),
+      },
+      {
+        id: 4,
+        name: "Etapa 4",
+        poleWinner: "Wendril Oliveira",
+        mvWinner: "Wendril Oliveira",
+        results: calculateStagePoints([
+          { driver: "Wendril Oliveira", position: 1 }, 
+          { driver: "Marcos Vinicius", position: 2 }, 
+          { driver: "Glauco Aguiar", position: 3 }, 
+          { driver: "Saara Santos", position: 4 }, 
+          { driver: "Pedro Cavalcante", position: 5 }, 
+          { driver: "Vitoria", position: 6 }, 
+          { driver: "Marcus Bessa", position: 7 }, 
+          { driver: "Hugo Bernardes", position: 8 }, 
+        ], "Wendril Oliveira", "Wendril Oliveira"),
+      },
+      {
+        id: 5,
+        name: "Etapa 5",
+        poleWinner: null,
+        mvWinner: "Wendril Oliveira",
+        results: calculateStagePoints([
+          { driver: "Mario Junior", position: 1 }, 
+          { driver: "Glauco Aguiar", position: 2 }, 
+          { driver: "Matheus Keveny", position: 3 }, 
+          { driver: "Hugo Bernardes", position: 4 }, 
+          { driver: "Denilson Martins", position: 5 }, 
+          { driver: "Saara Santos", position: 6 }, 
+          { driver: "Claudio Augusto de Paula", position: 7 }, 
+          { driver: "Wendril Oliveira", position: 8 }, 
+        ], null, "Wendril Oliveira"),
+      },
+      {
+        id: 6,
+        name: "Etapa 6",
+        poleWinner: "Glauco Aguiar",
+        mvWinner: "Mario Junior",
+        results: calculateStagePoints([
+          { driver: "Mario Junior", position: 1 }, 
+          { driver: "Glauco Aguiar", position: 2 }, 
+          { driver: "Junio", position: 3 }, 
+          { driver: "Wendril Oliveira", position: 4 }, 
+          { driver: "Marden Almeida", position: 5 }, 
+          { driver: "Marcos Vinicius", position: 6 }, 
+          { driver: "Bruno Matheus", position: 7 }, 
+          { driver: "Pedro Cavalcante", position: 8 }, 
+          { driver: "Hugo Bernardes", position: 9 }, 
+          { driver: "Igor Rodrigues", position: 10 }, 
+          // Pilotos com 0 pontos ou NC
+          { driver: "Claudio Augusto de Paula", position: 11 }, 
+          { driver: "Matheus Keveny", position: 12 }, 
+          { driver: "Saara Santos", position: 13 }, 
+        ], "Glauco Aguiar", "Mario Junior"),
+      },
+      {
+        id: 7,
+        name: "Etapa 7",
+        poleWinner: "Mario Junior",
+        mvWinner: "Mario Junior",
+        results: calculateStagePoints([
+          { driver: "Mario Junior", position: 1 }, // Base 25 + Pole 3 + MV 2 = 30
+          { driver: "Paulo Henrique Silva", position: 2 }, // Base 20 = 20
+          { driver: "Wendril Oliveira", position: 3 }, // Base 18 = 18
+          { driver: "Saara Santos", position: 4 }, // Base 15 = 15
+          { driver: "Hugo Bernardes", position: 5 }, // Base 12 = 12
+          { driver: "Matheus Keveny", position: 6 }, // Base 11 = 11
+          { driver: "Claudio Augusto de Paula", position: 7 }, // Base 10 = 10
+          { driver: "Fábio Oliveira", position: 8 }, // Base 8 = 8
+          { driver: "Marcos Vinicius", position: 9 }, // Base 6 = 6
+          // Pilotos ausentes (0 pontos): Glauco Aguiar, Antonio Rocha, etc.
+        ], "Mario Junior", "Mario Junior"),
+      },
+    ],
+  };
+
+  // ===== Estados =====
   const [championshipData, setChampionshipData] = useState(initialData);
-  const [view, setView] = useState("total"); // 'total' | 'totalWithDrops' | stageId | 'analysis'
+  const [view, setView] = useState('total'); // 'total' | 'totalWithDrops' | stageId | 'analysis'
   const [selectedDriver, setSelectedDriver] = useState(null);
+
   const [totalScoresNoDrop, setTotalScoresNoDrop] = useState([]);
   const [totalScoresWithDrop, setTotalScoresWithDrop] = useState([]);
   const [uniqueDrivers, setUniqueDrivers] = useState([]);
 
-  // Atualiza pilotos únicos
+  // Atualiza a lista de pilotos únicos sempre que os dados mudam
   useEffect(() => {
     const driversSet = new Set(initialData.drivers);
     championshipData.stages.forEach((stage) => {
@@ -243,7 +230,7 @@ const App = () => {
     setUniqueDrivers(Array.from(driversSet).sort());
   }, [championshipData, initialData.drivers]);
 
-  // Helpers de descarte
+  // ===== Helpers de descarte =====
   const getDriverStageArray = (driver) =>
     championshipData.stages.map((stage) => ({
       stageId: stage.id,
@@ -253,13 +240,22 @@ const App = () => {
 
   const computeDropSetForDriver = (driver) => {
     const arr = getDriverStageArray(driver);
-    if (arr.length <= DROPS) return new Set();
+    
+    // Se o número total de etapas é menor ou igual ao número de drops, nada é descartado
+    if (arr.length <= DROPS) {
+        return new Set();
+    }
+
+    // Ordena TODOS os resultados, incluindo pontuação 0 (ausências), do menor para o maior
     const sorted = arr
       .map((s) => ({ stageId: s.stageId, points: s.points }))
-      .sort((a, b) => a.points - b.points);
+      .sort((a, b) => a.points - b.points); 
+
+    // Seleciona os DROPS piores resultados (as ausências virão primeiro)
     const toDrop = sorted.slice(0, DROPS).map((o) => o.stageId);
     return new Set(toDrop);
   };
+  // =========================================================
 
   const sumPointsWithDrops = (driver) => {
     const dropSet = computeDropSetForDriver(driver);
@@ -270,16 +266,16 @@ const App = () => {
       if (pts > 0) stagesParticipated++;
       if (!dropSet.has(stage.id)) sum += pts;
     });
-    if (
-      championshipData.stages.length === initialData.totalStages &&
-      stagesParticipated === initialData.totalStages
-    ) {
-      sum += BONUS_TOTAL_PARTICIPATION;
+    
+    // Verifica o bônus de participação total, mas só aplica no final da temporada
+    if (championshipData.stages.length === initialData.totalStages && stagesParticipated === initialData.totalStages) {
+        sum += BONUS_TOTAL_PARTICIPATION;
     }
+    
     return { sum, dropSet, stagesParticipated };
   };
 
-  // Rankings
+  // ===== Cálculo dos dois rankings =====
   useEffect(() => {
     const driversToRank = uniqueDrivers;
 
@@ -288,16 +284,16 @@ const App = () => {
     driversToRank.forEach((d) => (scoresNoDrop[d] = 0));
     championshipData.stages.forEach((stage) => {
       for (const d in stage.results) {
-        const normalizedName = normalizeDriverName(d);
-        if (scoresNoDrop.hasOwnProperty(normalizedName)) {
-          scoresNoDrop[normalizedName] += stage.results[d];
-        }
+          const normalizedName = normalizeDriverName(d);
+          if (scoresNoDrop.hasOwnProperty(normalizedName)) {
+              scoresNoDrop[normalizedName] += stage.results[d];
+          }
       }
     });
     const sortedNoDrop = Object.entries(scoresNoDrop)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18);
+      .slice(0, 18); // Limita ao Top 18
     setTotalScoresNoDrop(sortedNoDrop);
 
     // Com descarte
@@ -309,11 +305,12 @@ const App = () => {
     const sortedWithDrop = Object.entries(scoresWithDrop)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18);
+      .slice(0, 18); // Limita ao Top 18
     setTotalScoresWithDrop(sortedWithDrop);
   }, [championshipData, uniqueDrivers]);
 
-  // Item de piloto
+
+  // ===== UI: itens de piloto =====
   const renderDriverItem = (item, index) => {
     const position = index + 1;
     let liClasses =
@@ -323,20 +320,17 @@ const App = () => {
 
     switch (position) {
       case 1:
-        liClasses +=
-          "bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold transform scale-105";
+        liClasses += "bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold transform scale-105";
         nameClasses += "text-gray-900 font-bold";
         pointsClasses += "text-gray-900";
         break;
       case 2:
-        liClasses +=
-          "bg-gradient-to-r from-gray-400 to-gray-500 text-gray-900 font-semibold";
+        liClasses += "bg-gradient-to-r from-gray-400 to-gray-500 text-gray-900 font-semibold";
         nameClasses += "text-gray-900 font-semibold";
         pointsClasses += "text-gray-900";
         break;
       case 3:
-        liClasses +=
-          "bg-gradient-to-r from-yellow-800 to-yellow-900 text-gray-100 font-semibold";
+        liClasses += "bg-gradient-to-r from-yellow-800 to-yellow-900 text-gray-100 font-semibold";
         nameClasses += "text-gray-100 font-semibold";
         pointsClasses += "text-gray-100";
         break;
@@ -351,8 +345,8 @@ const App = () => {
       <li
         key={item.driver}
         className={liClasses}
-        onClick={() => {
-          setSelectedDriver(normalizeDriverName(item.driver)); // normaliza no clique
+        onClick={() => { 
+          setSelectedDriver(item.driver);
           setView("analysis");
         }}
       >
@@ -361,9 +355,7 @@ const App = () => {
           {position === 2 && <span className="text-3xl md:text-4xl">🥈</span>}
           {position === 3 && <span className="text-3xl md:text-4xl">🥉</span>}
           {position > 3 && (
-            <span className="text-2xl font-bold text-gray-300 w-8 text-center">
-              {position}º
-            </span>
+            <span className="text-2xl font-bold text-gray-300 w-8 text-center">{position}º</span>
           )}
           <span className={nameClasses}>{item.driver}</span>
         </div>
@@ -372,14 +364,11 @@ const App = () => {
     );
   };
 
-  // Quadros de pontuação
   const renderScoreboard = (title, subtitle, list) => (
     <div className="p-6 rounded-3xl w-full animate-fadeIn">
       <h2 className="text-3xl font-bold mb-2 text-white text-center">{title}</h2>
       {subtitle && <p className="text-gray-400 text-center mb-6">{subtitle}</p>}
-      <ul className="space-y-4">
-        {list.map((item, index) => renderDriverItem(item, index))}
-      </ul>
+      <ul className="space-y-4">{list.map((item, index) => renderDriverItem(item, index))}</ul>
     </div>
   );
 
@@ -390,21 +379,13 @@ const App = () => {
     const sortedResults = Object.entries(stage.results)
       .map(([driver, score]) => ({ driver, score }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 18);
+      .slice(0, 18); // Limita ao Top 18
 
     return (
       <div className="p-6 rounded-3xl w-full animate-fadeIn">
         <h2 className="text-3xl font-bold mb-2 text-white text-center">{stage.name}</h2>
-        {stage.poleWinner && (
-          <p className="text-yellow-400 text-center text-sm">
-            Pole Position: {stage.poleWinner} (+{BONUS_POLE} pts)
-          </p>
-        )}
-        {stage.mvWinner && (
-          <p className="text-blue-400 text-center text-sm mb-4">
-            Melhor Volta: {stage.mvWinner} (+{BONUS_MV} pts)
-          </p>
-        )}
+        {stage.poleWinner && <p className="text-yellow-400 text-center text-sm">Pole Position: {stage.poleWinner} (+{BONUS_POLE} pts)</p>}
+        {stage.mvWinner && <p className="text-blue-400 text-center text-sm mb-4">Melhor Volta: {stage.mvWinner} (+{BONUS_MV} pts)</p>}
         <p className="text-gray-400 text-center mb-6">Resultados da Etapa</p>
         <ul className="space-y-4">
           {sortedResults.map((item, index) => renderDriverItem(item, index))}
@@ -413,25 +394,30 @@ const App = () => {
     );
   };
 
-  // Análise do piloto — usa SOMENTE driverStages já preparados (sem reconsultar stages)
-  const generatePilotAnalysis = (
-    driverName,
-    rankNoDrop,
-    totalNoDrop,
-    rankWithDrop,
-    totalWithDrop,
-    driverStages
-  ) => {
+  // ===== Análise do piloto =====
+  const generatePilotAnalysis = (driverName, rankNoDrop, totalNoDrop, rankWithDrop, totalWithDrop, driverStages) => {
     const stagesCompleted = driverStages.length;
     const stagesRemaining = Math.max(initialData.totalStages - stagesCompleted, 0);
 
-    const performanceData = driverStages.filter((s) => s.points > 0);
-    const podios = performanceData.filter(
-      (s) => typeof s.position === "number" && s.position <= 3
-    ).length;
-    const vitorias = performanceData.filter((s) => s.position === 1).length;
+    // Encontra a posição real na etapa
+    const detailedStages = driverStages.map(stage => {
+        let position = "Ausente";
+        if (stage.points > 0) {
+            const stageData = championshipData.stages.find(s => s.id === stage.id);
+            const sortedStageResults = Object.entries(stageData.results)
+                .map(([driver, score]) => ({ driver: normalizeDriverName(driver), score }))
+                .sort((a, b) => b.score - a.score);
+            position = sortedStageResults.findIndex((d) => d.driver === driverName) + 1;
+        }
+        return { ...stage, position };
+    });
 
-    const parts = [];
+    const performanceData = detailedStages.filter((stage) => stage.points > 0);
+
+    const podios = performanceData.filter((stage) => typeof stage.position === "number" && stage.position <= 3).length;
+    const vitorias = performanceData.filter((stage) => stage.position === 1).length;
+
+    let parts = [];
     parts.push(
       `${driverName} está na posição ${rankNoDrop}º (sem descarte, ${totalNoDrop} pts) e ${rankWithDrop}º (com descarte, ${totalWithDrop} pts).`
     );
@@ -446,11 +432,9 @@ const App = () => {
 
     let projection = "";
     if (stagesRemaining === 0) {
-      if (rankWithDrop === 1)
-        projection = "Parabéns! É o virtual campeão, aguardando a oficialização.";
-      else if (rankWithDrop <= 3)
-        projection = "Temporada excelente! Garantiu um lugar no pódio do campeonato.";
-      else projection = "Temporada concluída. Foco na preparação para o próximo ano!";
+        if (rankWithDrop === 1) projection = "Parabéns! É o virtual campeão, aguardando a oficialização.";
+        else if (rankWithDrop <= 3) projection = "Temporada excelente! Garantiu um lugar no pódio do campeonato.";
+        else projection = "Temporada concluída. Foco na preparação para o próximo ano!";
     } else if (rankWithDrop <= 2) {
       projection = `Mantendo a performance, o título está próximo. Concentração total nas últimas ${stagesRemaining} etapas.`;
     } else if (rankWithDrop <= 5) {
@@ -471,18 +455,16 @@ const App = () => {
     const driverStages = championshipData.stages.map((stage) => {
       const points = stage.results[selectedDriver] ?? 0;
 
-      // calcula posição dentro da etapa apenas com dados locais
       let position = "Ausente";
+      let isPole = normalizeDriverName(stage.poleWinner) === selectedDriver;
+      let isMV = normalizeDriverName(stage.mvWinner) === selectedDriver;
+      
       if (points > 0) {
         const sortedStageResults = Object.entries(stage.results)
           .map(([driver, score]) => ({ driver: normalizeDriverName(driver), score }))
           .sort((a, b) => b.score - a.score);
-        const idx = sortedStageResults.findIndex((d) => d.driver === selectedDriver);
-        position = idx >= 0 ? idx + 1 : "Ausente";
+        position = sortedStageResults.findIndex((d) => d.driver === selectedDriver) + 1;
       }
-
-      const isPole = normalizeDriverName(stage.poleWinner) === selectedDriver;
-      const isMV = normalizeDriverName(stage.mvWinner) === selectedDriver;
 
       return {
         id: stage.id,
@@ -495,19 +477,11 @@ const App = () => {
       };
     });
 
-    const totalNoDrop =
-      totalScoresNoDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
-    const totalWithDrop =
-      totalScoresWithDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
+    const totalNoDrop = totalScoresNoDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
+    const totalWithDrop = totalScoresWithDrop.find((d) => d.driver === selectedDriver)?.score ?? 0;
 
-    const idxNoDrop = totalScoresNoDrop.findIndex(
-      (d) => d.driver === selectedDriver
-    );
-    const idxWithDrop = totalScoresWithDrop.findIndex(
-      (d) => d.driver === selectedDriver
-    );
-    const rankNoDrop = idxNoDrop >= 0 ? idxNoDrop + 1 : 0;
-    const rankWithDrop = idxWithDrop >= 0 ? idxWithDrop + 1 : 0;
+    const rankNoDrop = (totalScoresNoDrop.findIndex((d) => d.driver === selectedDriver) + 1) || 0;
+    const rankWithDrop = (totalScoresWithDrop.findIndex((d) => d.driver === selectedDriver) + 1) || 0;
 
     const chartData = driverStages.map((stage) => ({
       name: stage.name,
@@ -556,10 +530,7 @@ const App = () => {
 
         <div className="bg-gray-700 p-3 rounded-xl mb-6">
           <p className="text-sm text-gray-300">
-            Descartes ({DROPS} piores etapas com pontos):{" "}
-            <span className="font-medium text-gray-100">
-              {droppedInfo || "Nenhum resultado descartado"}
-            </span>
+            Descartes ({DROPS} piores etapas com pontos): <span className="font-medium text-gray-100">{droppedInfo || "Nenhum resultado descartado"}</span>
           </p>
         </div>
 
@@ -577,29 +548,22 @@ const App = () => {
               <YAxis
                 label={{ value: "Posição", angle: -90, position: "insideLeft", fill: "#cbd5e0" }}
                 stroke="#cbd5e0"
-                domain={[1, 12]}
+                domain={[12, 1]} // Limita de 1º a 12º e inverte a ordem
                 tickCount={12}
-                reversed={true}
+                reversed={true} // O maior número (12) fica na base, 1 no topo
               />
               <Tooltip
                 contentStyle={{ backgroundColor: "#2d3748", border: "none", borderRadius: "8px" }}
                 labelStyle={{ color: "#e2e8f0" }}
                 itemStyle={{ color: "#e2e8f0" }}
-                formatter={(value /* invertedPosition */) => {
-                  if (value == null) return ["Ausente", "Posição"];
-                  return [`Posição: ${value}º`, "Posição"];
+                formatter={(value, name, props) => {
+                  const realPosition = props.payload.position;
+                  if (realPosition === null) return ["Ausente", "Posição"];
+                  return [`Posição: ${realPosition}º`, "Posição"];
                 }}
               />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="invertedPosition"
-                stroke="#4299e1"
-                strokeWidth={2}
-                name="Posição"
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-              />
+              <Line type="monotone" dataKey="invertedPosition" stroke="#4299e1" strokeWidth={2} name="Posição" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -610,39 +574,29 @@ const App = () => {
             <li
               key={stage.id}
               className={`p-4 rounded-lg flex justify-between items-center ${
-                stage.dropped
-                  ? "bg-gray-800 border border-dashed border-gray-600 opacity-70"
-                  : "bg-gray-900"
+                stage.dropped ? "bg-gray-800 border border-dashed border-gray-600 opacity-70" : "bg-gray-900"
               }`}
               title={stage.dropped ? "Etapa descartada" : undefined}
             >
-              <span className="text-gray-300 text-lg">
-                {stage.name}: {stage.position === "Ausente" ? "Ausente" : `P${stage.position}`}
-                {stage.isPole && (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-yellow-600 text-gray-900 align-middle font-bold">
-                    POLE
-                  </span>
-                )}
-                {stage.isMV && (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-blue-600 text-white align-middle font-bold">
-                    MV
-                  </span>
-                )}
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-300 text-lg">
+                  {stage.name}: {stage.position === "Ausente" ? "Ausente" : `P${stage.position}`}
+                </span>
+                {stage.isPole && <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-600 text-gray-900 font-bold">POLE</span>}
+                {stage.isMV && <span className="text-xs px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold">MV</span>}
                 {stage.dropped && (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-200 align-middle">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-200">
                     descartada
                   </span>
                 )}
-              </span>
-              <div className="flex items-center space-x-2">
-                <span
-                  className={`font-bold text-lg ${
-                    stage.dropped ? "text-gray-400 line-through" : "text-green-400"
-                  }`}
-                >
-                  {stage.points} Pontos
-                </span>
               </div>
+              <span
+                className={`font-bold text-lg ${
+                  stage.dropped ? "text-gray-400 line-through" : "text-green-400"
+                }`}
+              >
+                {stage.points} Pontos
+              </span>
             </li>
           ))}
         </ul>
@@ -655,43 +609,39 @@ const App = () => {
         </button>
       </div>
     );
-  };
+  }
 
-  // Render principal
+  // ===== Render principal (CORRIGIDO) =====
   return (
     <div className="bg-gray-900 min-h-screen p-8 font-sans flex flex-col items-center">
       <div className="max-w-xl w-full">
         <header className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-2">
-            TEMPORADA DE KART 2025
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-2">TEMPORADA DE KART 2025</h1>
         </header>
 
-        {/* Controles */}
+        {/* Controles de visualização */}
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
+          {/* Geral */}
           <button
             onClick={() => {
               setView("total");
               setSelectedDriver(null);
             }}
             className={`py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
-              view === "total"
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              view === "total" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
           >
             Geral
           </button>
 
+          {/* Final (com descarte) */}
           <button
             onClick={() => {
               setView("totalWithDrops");
               setSelectedDriver(null);
             }}
             className={`py-3 px-6 rounded-full font-bold transition-all duration-300 transform hover:scale-105 ${
-              view === "totalWithDrops"
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              view === "totalWithDrops" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
             title={`Aplica descarte das ${DROPS} piores etapas por piloto`}
           >
@@ -718,11 +668,7 @@ const App = () => {
               ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-300">
-              <svg
-                className="fill-current h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.05 6.879 4.636 8.293 9.293 12.95z" />
               </svg>
             </div>
@@ -739,7 +685,7 @@ const App = () => {
           </a>
         </div>
 
-        {/* Conteúdo */}
+        {/* Conteúdo principal */}
         <main className="mt-8">
           {view === "total" &&
             renderScoreboard(
@@ -755,16 +701,10 @@ const App = () => {
               totalScoresWithDrop
             )}
 
-          {view !== "total" &&
-            view !== "totalWithDrops" &&
-            view !== "analysis" &&
-            renderStageScoreboard(view)}
-
+          {view !== "total" && view !== "totalWithDrops" && view !== "analysis" && renderStageScoreboard(view)}
           {view === "analysis" && renderDriverAnalysis()}
         </main>
       </div>
     </div>
   );
-};
-
-export default App;
+}
