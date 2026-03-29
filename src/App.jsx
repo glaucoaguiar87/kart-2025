@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Trophy, Target, Flag, BarChart3, Settings2, History, ChevronRight, Lock } from 'lucide-react';
 
 /**
@@ -117,7 +117,7 @@ export default function App() {
 
       return { ...d, brute, valid };
     }).sort((a, b) => b.valid - a.valid || b.wins - a.wins || b.poles - a.poles || a.lastStagePos - b.lastStagePos);
-  }, [selectedSeason]);
+  }, [selectedSeason, config]);
 
   const handleDriverSelect = (name) => {
     if (selectedSeason === '2026') {
